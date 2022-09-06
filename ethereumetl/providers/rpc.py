@@ -24,12 +24,25 @@
 from web3 import HTTPProvider
 from web3._utils.request import make_post_request
 
+import redis
+import os
+import re
+
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
+redis_connection = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD
+)
 
 # Mostly copied from web3.py/providers/rpc.py. Supports batch requests.
 # Will be removed once batch feature is added to web3.py https://github.com/ethereum/web3.py/issues/832
 class BatchHTTPProvider(HTTPProvider):
-
     def make_batch_request(self, text):
+        method_used = re.search('"method": "([a-zA-Z_0-9]*)"', text).group(1)
+        redis_connection.hset('rpc', method_used, 1)
         self.logger.debug("Making request HTTP. URI: %s, Request: %s",
                           self.endpoint_uri, text)
         request_data = text.encode('utf-8')
