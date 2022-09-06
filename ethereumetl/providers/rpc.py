@@ -42,7 +42,7 @@ redis_connection = redis.Redis(
 class BatchHTTPProvider(HTTPProvider):
     def make_batch_request(self, text):
         method_used = re.search('"method": "([a-zA-Z_0-9]*)"', text).group(1)
-        redis_connection.hset('rpc', method_used, 1)
+        redis_connection.hincrby('rpc', method_used, 1)
         self.logger.debug("Making request HTTP. URI: %s, Request: %s",
                           self.endpoint_uri, text)
         request_data = text.encode('utf-8')
