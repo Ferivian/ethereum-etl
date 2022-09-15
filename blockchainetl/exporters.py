@@ -165,12 +165,25 @@ def EncodeDecimal(o):
 
 class JsonLinesItemExporter(BaseItemExporter):
 
-    def __init__(self, file, **kwargs):
+    def __init__(self, file, join_multivalued = ',', **kwargs):
         self._configure(kwargs, dont_fail=True)
         self.file = file
         kwargs.setdefault('ensure_ascii', not self.encoding)
+        self._join_multivalued = join_multivalued
         # kwargs.setdefault('default', EncodeDecimal)
         self.encoder = JSONEncoder(default=EncodeDecimal, **kwargs)
+
+    def serialize_field(self, field, name, value):
+        serializer = field.get('serializer', self._join_if_needed)
+        return serializer(value)
+
+    def _join_if_needed(self, value):
+        if isinstance(value, (list, tuple)):
+            try:
+                return self._join_multivalued.join(str(x) for x in value)
+            except TypeError:  # list in value may not contain strings
+                pass
+        return value
 
     def export_item(self, item):
         itemdict = dict(self._get_serialized_fields(item))
