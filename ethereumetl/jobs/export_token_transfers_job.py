@@ -92,7 +92,7 @@ class ExportTokenTransfersJob(BaseJob):
             except Exception as error:
                 raise(error)
                 
-            if response.code == -32601:
+            if response.get('code') == -32601:
                 self._supports_eth_newFilter = False
                 events = self.web3.eth.getLogs(filter_params)
             else:
