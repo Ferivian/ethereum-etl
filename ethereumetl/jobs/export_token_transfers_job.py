@@ -87,7 +87,7 @@ class ExportTokenTransfersJob(BaseJob):
             events = event_filter.get_all_entries()
         except ValueError as e:
             try:
-                response = json.loads(str(e))
+                response = json.loads(e.message)
             except Exception as error:
                 raise(error)
                 
