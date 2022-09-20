@@ -114,8 +114,7 @@ class ExportOriginJob(BaseJob):
                     events = event_filter.get_all_entries()
                 except ValueError as e:
                     try:
-                        message = str(e.args[0])
-                        print(f'message is: {message}')
+                        message = str(e.args[0]).replace("'", '"')
                         response = json.loads(message)
                     except Exception as error:
                         raise(error)
